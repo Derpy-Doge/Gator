@@ -5,8 +5,7 @@ using UnityEngine.InputSystem;
 public class InputReader : MonoBehaviour
 {
     Gamepad gamepad;
-
-    [SerializeField] private float deadzone = .2f;
+    InputSystem_Actions controls;
 
     [Space(7f)]
     [Header("FPS Counter")]
@@ -14,6 +13,23 @@ public class InputReader : MonoBehaviour
     private float _pollingTime = 0.5f;
     private float _timeAccumulator;
     private int _frameCount;
+
+    void Awake()
+    {
+        controls = new InputSystem_Actions();
+    }
+
+    void OnEnable()
+    {
+        controls.Player.Move.performed += OnMove;
+        controls.Enable();
+    }
+
+    void OnDisable( )
+    {
+        controls.Player.Move.performed -= OnMove;
+        controls.Disable();
+    }
 
     void Start()
     {
@@ -37,10 +53,6 @@ public class InputReader : MonoBehaviour
 
         Vector2 stickInput = gamepad.leftStick.ReadValue();
 
-        if(stickInput.magnitude > deadzone)
-        {            
-            StickDirection(stickInput);
-        }
 
         #region FPSCounter
         _timeAccumulator += Time.deltaTime;
@@ -62,6 +74,21 @@ public class InputReader : MonoBehaviour
         #endregion
     }
 
+    void OnMove(InputAction.CallbackContext ctx)
+    {
+        if (ctx.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
+        {
+            Vector2 tapDirect = ctx.ReadValue<Vector2>();
+            StickDirection(tapDirect);
+            //DirectionTest(tapDirect);
+        }
+        else if(ctx.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
+        {
+            Vector2 holdDirect = ctx.ReadValue<Vector2>();
+            //walk or sum
+        }
+    }
+
     private void StickDirection(Vector2 input)
     {
         float angle = Mathf.Atan2(input.y, input.x) * Mathf.Rad2Deg;
@@ -76,5 +103,21 @@ public class InputReader : MonoBehaviour
         else if (angle >= 247.5f && angle < 292.5f) Debug.Log("down");
         else if (angle >= 292.5f && angle < 337.5f) Debug.Log("down-right");
         else                                        Debug.Log("right");
+    }
+
+    private void DirectionTest(Vector2 input)
+    {
+        int x = Mathf.RoundToInt(input.x);
+        int y = Mathf.RoundToInt(input.y);
+
+        if(x == y) return;
+        if(x > 0 && y == 0) Debug.Log("right");
+        if (x < 0 && y == 0) Debug.Log("left");
+        if (x == 0 && y > 0) Debug.Log("up");
+        if (x == 0 && y < 0) Debug.Log("down");
+        if (x > 0 && y > 0) Debug.Log("up-right");
+        if (x < 0 && y > 0) Debug.Log("up-left");
+        if (x > 0 && y < 0) Debug.Log("down-right");
+        if (x < 0 && y < 0) Debug.Log("down-left");
     }
 }
