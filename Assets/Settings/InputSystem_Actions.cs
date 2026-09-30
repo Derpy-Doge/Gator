@@ -188,7 +188,7 @@ public partial class @InputSystem_Actions: IInputActionCollection2, IDisposable
                     ""name"": """",
                     ""id"": ""978bfe49-cc26-4a3d-ab7b-7d7a29327403"",
                     ""path"": ""<Gamepad>/leftStick"",
-                    ""interactions"": ""Tap,Hold"",
+                    ""interactions"": ""Tap(duration=0.25),Hold"",
                     ""processors"": """",
                     ""groups"": "";Gamepad"",
                     ""action"": ""Move"",

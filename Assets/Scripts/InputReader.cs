@@ -4,20 +4,52 @@ using UnityEngine.InputSystem;
 
 public class InputReader : MonoBehaviour
 {
-    Gamepad gamepad;
-    InputSystem_Actions controls;
-    [SerializeField] private float inputDeadzone;
+    [Header("Movement")]
+    public float walkSpeed;
+    private Vector2 moveVel;
+    [Space (3f)]
+    [Header("<size=12>Jumping</size>")]
+    public float jumpForce;
+    private bool _canJump;
+    public float airMult = .5f;
+    [Space(3f)]
+    [Header("<size=12>Gravity</size>")]
+    public float gravity = -9.81f;
+    public float gravityMult = 2f;
 
     [Space(7f)]
-    [Header("FPS Counter")]
+    [Header("Ground Check Settings")]
+    [Space(3f)]
+    [SerializeField] private float groundCheckDistance;
+    [SerializeField] private Transform groundCheckPoint;
+    [SerializeField] private Vector2 groundChecksize;
+    public LayerMask ground;
+    private bool _isGrounded;
+
+    [Space(7f)]
+    [Header("Input")]
+    Gamepad gamepad;
+    InputSystem_Actions controls;
+    CharacterController characterController;
+    [SerializeField] private float inputDeadzone;
+
+    int testX;
+    int testY;
+
+    [Space(7f)]
+    [Header("FPS")]
     [SerializeField] private TMPro.TMP_Text fpsText;
     private float _pollingTime = 0.5f;
     private float _timeAccumulator;
     private int _frameCount;
 
+    [SerializeField] private int targetFPS = 60;
+
     void Awake()
     {
         controls = new InputSystem_Actions();
+        QualitySettings.vSyncCount = 0; //no vsync
+        Application.targetFrameRate = targetFPS; //gonna try to keep ts at 60 for simplicities sake
     }
 
     void OnEnable()
@@ -75,22 +107,41 @@ public class InputReader : MonoBehaviour
         #endregion
     }
 
+    private void FixedUpdate()
+    {
+        //_isGrounded = Physics2D.BoxCast()
+    }
+
     void OnMove(InputAction.CallbackContext ctx)
     {
         if (ctx.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
-            if(ctx.ReadValue<Vector2>().magnitude < inputDeadzone)
+            Vector2 rawInput = ctx.ReadValue<Vector2>();
+            if(rawInput.magnitude < inputDeadzone)
             {
-                return;
+                rawInput = Vector2.zero;
             }
-            Vector2 tapDirect = ctx.ReadValue<Vector2>();
+            Vector2 tapDirect =rawInput;
             StickDirection(tapDirect);
             //DirectionTest(tapDirect);
         }
         else if(ctx.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
         {
             Vector2 holdDirect = ctx.ReadValue<Vector2>();
-            //walk or sum
+            if (holdDirect.magnitude > .01f)
+            {            
+                moveVel.x = holdDirect.x * walkSpeed;
+            }
+            Vector2 finalMove = moveVel * Time.deltaTime;
+            if (_isGrounded)
+            {
+                characterController.Move(finalMove);
+            }
+            else
+            {
+                characterController.Move(finalMove * airMult);
+            }
+
         }
     }
 
@@ -100,29 +151,30 @@ public class InputReader : MonoBehaviour
         if (angle < 0) angle += 360f;
 
         //each section in 45 degrees
-        if (angle >= 22.5f && angle < 67.5f)        Debug.Log("up-right");
-        else if (angle >= 67.5f && angle < 112.5f)  Debug.Log("up");
+        if (angle == 0f) Debug.Log("neutral");
+        else if (angle >= 22.5f && angle < 67.5f) Debug.Log("up-right");
+        else if (angle >= 67.5f && angle < 112.5f) Debug.Log("up");
         else if (angle >= 112.5f && angle < 157.5f) Debug.Log("up-left");
         else if (angle >= 157.5f && angle < 202.5f) Debug.Log("left");
         else if (angle >= 202.5f && angle < 247.5f) Debug.Log("down-left");
         else if (angle >= 247.5f && angle < 292.5f) Debug.Log("down");
         else if (angle >= 292.5f && angle < 337.5f) Debug.Log("down-right");
-        else                                        Debug.Log("right");
+        else Debug.Log("right");
     }
 
     private void DirectionTest(Vector2 input)
     {
-        int x = Mathf.RoundToInt(input.x);
-        int y = Mathf.RoundToInt(input.y);
+        testX = Mathf.RoundToInt(input.x);
+        testY = Mathf.RoundToInt(input.y);
 
-        if(x == y) return;
-        if(x > 0 && y == 0) Debug.Log("right");
-        if (x < 0 && y == 0) Debug.Log("left");
-        if (x == 0 && y > 0) Debug.Log("up");
-        if (x == 0 && y < 0) Debug.Log("down");
-        if (x > 0 && y > 0) Debug.Log("up-right");
-        if (x < 0 && y > 0) Debug.Log("up-left");
-        if (x > 0 && y < 0) Debug.Log("down-right");
-        if (x < 0 && y < 0) Debug.Log("down-left");
+        if(testX == testY) return;
+        if(testX > 0 && testY == 0) Debug.Log("right");
+        if (testX < 0 && testY == 0) Debug.Log("left");
+        if (testX == 0 && testY > 0) Debug.Log("up");
+        if (testX == 0 && testY < 0) Debug.Log("down");
+        if (testX > 0 && testY > 0) Debug.Log("up-right");
+        if (testX < 0 && testY > 0) Debug.Log("up-left");
+        if (testX > 0 && testY < 0) Debug.Log("down-right");
+        if (testX < 0 && testY < 0) Debug.Log("down-left");
     }
 }
