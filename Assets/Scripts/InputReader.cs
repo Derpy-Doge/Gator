@@ -6,6 +6,7 @@ public class InputReader : MonoBehaviour
 {
     Gamepad gamepad;
     InputSystem_Actions controls;
+    [SerializeField] private float inputDeadzone;
 
     [Space(7f)]
     [Header("FPS Counter")]
@@ -78,6 +79,10 @@ public class InputReader : MonoBehaviour
     {
         if (ctx.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
+            if(ctx.ReadValue<Vector2>().magnitude < inputDeadzone)
+            {
+                return;
+            }
             Vector2 tapDirect = ctx.ReadValue<Vector2>();
             StickDirection(tapDirect);
             //DirectionTest(tapDirect);
