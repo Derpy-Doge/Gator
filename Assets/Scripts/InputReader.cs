@@ -11,12 +11,6 @@ public class InputReader : MonoBehaviour
     [Header("<size=12>Jumping</size>")]
     public float jumpForce;
     private bool _canJump;
-    public float airMult = .5f;
-    [Space(3f)]
-    [Header("<size=12>Gravity</size>")]
-    public float gravity = -9.81f;
-    public float gravityMult = 2f;
-
     [Space(7f)]
     [Header("Ground Check Settings")]
     [Space(3f)]
@@ -29,8 +23,8 @@ public class InputReader : MonoBehaviour
     [Space(7f)]
     [Header("Input")]
     Gamepad gamepad;
+    Rigidbody2D rb;
     InputSystem_Actions controls;
-    CharacterController characterController;
     [SerializeField] private float inputDeadzone;
 
     int testX;
@@ -48,19 +42,21 @@ public class InputReader : MonoBehaviour
     void Awake()
     {
         controls = new InputSystem_Actions();
+        rb = GetComponent<Rigidbody2D>();
         QualitySettings.vSyncCount = 0; //no vsync
         Application.targetFrameRate = targetFPS; //gonna try to keep ts at 60 for simplicities sake
     }
 
     void OnEnable()
     {
-        controls.Player.Move.performed += OnMove;
+        controls.Player.Move.performed += OnTap;
+        controls.Player.Jump.performed += Jump;
         controls.Enable();
     }
 
     void OnDisable( )
     {
-        controls.Player.Move.performed -= OnMove;
+        controls.Player.Move.performed -= OnTap;
         controls.Disable();
     }
 
@@ -86,7 +82,21 @@ public class InputReader : MonoBehaviour
 
         Vector2 stickInput = gamepad.leftStick.ReadValue();
 
-
+        _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);
+        if (_isGrounded)
+        {
+            _canJump = true;
+        }
+        moveVel.x = stickInput.x;
+        if(moveVel.magnitude > inputDeadzone)
+        {
+            rb.linearVelocityX = moveVel.x * walkSpeed;
+        }
+        else
+        {
+            rb.linearVelocityX = 0;
+        }
+ 
         #region FPSCounter
         _timeAccumulator += Time.deltaTime;
         _frameCount++;
@@ -107,12 +117,21 @@ public class InputReader : MonoBehaviour
         #endregion
     }
 
-    private void FixedUpdate()
+    void Jump(InputAction.CallbackContext ctx)
     {
-        //_isGrounded = Physics2D.BoxCast()
+        if (_canJump)
+        {
+            _canJump = false;
+            rb.linearVelocityY = jumpForce;
+        }
+        else
+        {
+            return;
+        }
+
     }
 
-    void OnMove(InputAction.CallbackContext ctx)
+    void OnTap(InputAction.CallbackContext ctx)
     {
         if (ctx.interaction is UnityEngine.InputSystem.Interactions.TapInteraction)
         {
@@ -124,24 +143,6 @@ public class InputReader : MonoBehaviour
             Vector2 tapDirect =rawInput;
             StickDirection(tapDirect);
             //DirectionTest(tapDirect);
-        }
-        else if(ctx.interaction is UnityEngine.InputSystem.Interactions.HoldInteraction)
-        {
-            Vector2 holdDirect = ctx.ReadValue<Vector2>();
-            if (holdDirect.magnitude > .01f)
-            {            
-                moveVel.x = holdDirect.x * walkSpeed;
-            }
-            Vector2 finalMove = moveVel * Time.deltaTime;
-            if (_isGrounded)
-            {
-                characterController.Move(finalMove);
-            }
-            else
-            {
-                characterController.Move(finalMove * airMult);
-            }
-
         }
     }
 
@@ -176,5 +177,20 @@ public class InputReader : MonoBehaviour
         if (testX < 0 && testY > 0) Debug.Log("up-left");
         if (testX > 0 && testY < 0) Debug.Log("down-right");
         if (testX < 0 && testY < 0) Debug.Log("down-left");
+    }
+
+    private void OnDrawGizmos()
+    {
+        Matrix4x4 originalMatrix = Gizmos.matrix;
+
+        Gizmos.matrix = groundCheckPoint.localToWorldMatrix;
+
+        Gizmos.color = Color.green; //groundcheck
+        Gizmos.DrawCube(Vector3.zero, groundChecksize);
+
+        Gizmos.matrix = originalMatrix;
+
+        Gizmos.color = Color.red; //groundcheck ray
+        Gizmos.DrawLine(transform.position, transform.position + Vector3.down * groundCheckDistance);
     }
 }
