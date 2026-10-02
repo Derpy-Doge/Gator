@@ -26,6 +26,9 @@ public class InputReader : MonoBehaviour
     Rigidbody2D rb;
     InputSystem_Actions controls;
     [SerializeField] private float inputDeadzone;
+    Vector3 direction;
+    Vector2 currentInput;
+    Vector2 lastInput;
 
     int testX;
     int testY;
@@ -115,6 +118,19 @@ public class InputReader : MonoBehaviour
             _frameCount = 0;
         }
         #endregion
+
+        #region dihrection
+        Debug.DrawRay(transform.position, direction * 3f, Color.yellow);
+        LastDirection();
+
+        currentInput = new Vector2(stickInput.x, 0);
+        direction = new Vector2(lastInput.x, 0);
+
+        if (direction.magnitude > (inputDeadzone - 0.05f))
+        {
+            direction.Normalize();
+        }
+        #endregion
     }
 
     void Jump(InputAction.CallbackContext ctx)
@@ -177,6 +193,14 @@ public class InputReader : MonoBehaviour
         if (testX < 0 && testY > 0) Debug.Log("up-left");
         if (testX > 0 && testY < 0) Debug.Log("down-right");
         if (testX < 0 && testY < 0) Debug.Log("down-left");
+    }
+
+    public void LastDirection()
+    {
+        if (currentInput != Vector2.zero)
+        {
+            lastInput = currentInput;
+        }
     }
 
     private void OnDrawGizmos()
