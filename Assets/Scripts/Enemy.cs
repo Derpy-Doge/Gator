@@ -26,6 +26,9 @@ public class Enemy : MonoBehaviour
     private bool canAttack = true;
     public float attackCooldown = 3f;
 
+    [Space(5f)]
+    public int pointsOnDeath;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -80,9 +83,23 @@ public class Enemy : MonoBehaviour
         RaycastHit2D hitInfo = Physics2D.CircleCast(transform.position, attackRadius, direction * .4f, attackRange, attackLayer);
         if(hitInfo.collider.TryGetComponent(out Stats player))
         {
-
+            float calculatedDamage = GetComponent<Stats>().attackPower - player.defense;
+            player.healthCurrent -= calculatedDamage;
         }
+        else
+        {
+            Debug.Log("yo you don have stats cuh");
+        }
+        isAttacking = false;
 
-        yield return null;
+        yield return new WaitForSeconds(attackCooldown);
+
+        canAttack = true;
+    }
+
+    public void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position + new Vector3(direction.x, 0, 0) * attackRange, attackRadius);
     }
 }

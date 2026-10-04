@@ -1,14 +1,16 @@
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class InputReader : MonoBehaviour
 {
     [Header("Movement")]
     public float walkSpeed;
     private Vector2 moveVel;
-    [Space (3f)]
-    [Header("<size=12>Jumping</size>")]
+    [Space (1f)]
+    [Header("<size=11>Jumping</size>")]
     public float jumpForce;
     private bool _canJump;
     [Space(7f)]
@@ -21,17 +23,32 @@ public class InputReader : MonoBehaviour
     private bool _isGrounded;
 
     [Space(7f)]
+    [Header("Healthbar")]
+    public Image healthBar;
+
+    [Space(7f)]
     [Header("Input")]
+    [SerializeField] private float inputDeadzone;
+    Vector2 stickInput;
     Gamepad gamepad;
+
+    Vector2 keyboardInput;
+
     Rigidbody2D rb;
     InputSystem_Actions controls;
-    [SerializeField] private float inputDeadzone;
+
     Vector3 direction;
     Vector2 currentInput;
     Vector2 lastInput;
 
-    int testX;
-    int testY;
+    public int tester = 0; // just so i can see dpad value in inspector
+    public static int dpad = 5;
+    public static int hori = 0;
+    public static int vert = 0;
+
+    const int bufferlength = 60;
+    public List<int> dirBuffer = new List<int>(); // MAKE THIS STATIC LATER
+
 
     [Space(7f)]
     [Header("FPS")]
@@ -52,45 +69,84 @@ public class InputReader : MonoBehaviour
 
     void OnEnable()
     {
-        controls.Player.Move.performed += OnTap;
+        controls.Player.Move.performed += ctx =>
+        {
+            if (gamepad != null)
+            {               
+                OnTap(ctx);
+            }
+            else
+            {
+                keyboardInput = ctx.ReadValue<Vector2>();
+                KeyboardDirection();
+                dirBuffer.Insert(0, dpad);
+
+            }     
+        };
+        controls.Player.Move.canceled += ctx =>
+        {
+            if (gamepad != null)
+            {
+
+            }
+            else
+            {              
+                keyboardInput = Vector2.zero;
+                KeyboardDirection();
+            }
+        };
+
         controls.Player.Jump.performed += Jump;
         controls.Enable();
     }
 
     void OnDisable( )
     {
-        controls.Player.Move.performed -= OnTap;
+        controls.Player.Move.performed -= ctx =>
+        {
+            KeyboardDirection();
+
+            OnTap(ctx);
+        };
         controls.Disable();
     }
 
     void Start()
     {
-        
+        gamepad = Gamepad.current;
+        Debug.Log(gamepad);
+
+        dpad = 5;
+
+        if (gamepad == null)
+        {
+            Debug.LogWarning("yo plug ts in dawg");
+        }
+
+        dirBuffer = new List<int>();
     }
 
     
     void Update()
     {
-        gamepad = Gamepad.current;
-        if(gamepad == null)
+        tester = dpad;
+        gamepad = Gamepad.current;          
+
+        if(gamepad != null)
         {
-            Debug.LogWarning("yo plug ts in dawg");
-            return;
+            stickInput = gamepad.leftStick.ReadValue();
+            moveVel.x = stickInput.x;
+
+            if (gamepad.buttonNorth.wasPressedThisFrame) Debug.Log("north button");
+            if (gamepad.buttonEast.wasPressedThisFrame) Debug.Log("east button");
+            if (gamepad.buttonSouth.wasPressedThisFrame) Debug.Log("south button");
+            if (gamepad.buttonWest.wasPressedThisFrame) Debug.Log("west button");
+        }
+        else
+        {
+            moveVel.x = keyboardInput.x;
         }
 
-        if (gamepad.buttonNorth.wasPressedThisFrame) Debug.Log("north button");
-        if (gamepad.buttonEast.wasPressedThisFrame) Debug.Log("east button");
-        if (gamepad.buttonSouth.wasPressedThisFrame) Debug.Log("south button");
-        if (gamepad.buttonWest.wasPressedThisFrame) Debug.Log("west button");
-
-        Vector2 stickInput = gamepad.leftStick.ReadValue();
-
-        _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);
-        if (_isGrounded)
-        {
-            _canJump = true;
-        }
-        moveVel.x = stickInput.x;
         if(moveVel.magnitude > inputDeadzone)
         {
             rb.linearVelocityX = moveVel.x * walkSpeed;
@@ -99,7 +155,21 @@ public class InputReader : MonoBehaviour
         {
             rb.linearVelocityX = 0;
         }
- 
+
+        _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);
+        if (_isGrounded)
+        {
+            _canJump = true;
+        }
+
+        #region healthbar
+        Stats stats = GetComponent<Stats>();
+        if(stats != null)
+        {
+            healthBar.fillAmount = stats.healthCurrent / stats.healthMax;
+        }
+        #endregion
+
         #region FPSCounter
         _timeAccumulator += Time.deltaTime;
         _frameCount++;
@@ -122,8 +192,14 @@ public class InputReader : MonoBehaviour
         #region dihrection
         Debug.DrawRay(transform.position, direction * 3f, Color.yellow);
         LastDirection();
-
-        currentInput = new Vector2(stickInput.x, 0);
+        if (gamepad != null)
+        {
+            currentInput = new Vector2(stickInput.x, 0);
+        }
+        else
+        {
+            currentInput = new Vector2(keyboardInput.x, 0);
+        }       
         direction = new Vector2(lastInput.x, 0);
 
         if (direction.magnitude > (inputDeadzone - 0.05f))
@@ -131,6 +207,11 @@ public class InputReader : MonoBehaviour
             direction.Normalize();
         }
         #endregion
+
+        while (dirBuffer.Count > bufferlength)
+        {
+            dirBuffer.RemoveAt(dirBuffer.Count - 1);
+        }
     }
 
     void Jump(InputAction.CallbackContext ctx)
@@ -158,7 +239,6 @@ public class InputReader : MonoBehaviour
             }
             Vector2 tapDirect =rawInput;
             StickDirection(tapDirect);
-            //DirectionTest(tapDirect);
         }
     }
 
@@ -168,31 +248,93 @@ public class InputReader : MonoBehaviour
         if (angle < 0) angle += 360f;
 
         //each section in 45 degrees
-        if (angle == 0f) Debug.Log("neutral");
-        else if (angle >= 22.5f && angle < 67.5f) Debug.Log("up-right");
-        else if (angle >= 67.5f && angle < 112.5f) Debug.Log("up");
-        else if (angle >= 112.5f && angle < 157.5f) Debug.Log("up-left");
-        else if (angle >= 157.5f && angle < 202.5f) Debug.Log("left");
-        else if (angle >= 202.5f && angle < 247.5f) Debug.Log("down-left");
-        else if (angle >= 247.5f && angle < 292.5f) Debug.Log("down");
-        else if (angle >= 292.5f && angle < 337.5f) Debug.Log("down-right");
-        else Debug.Log("right");
+        if (angle == 0f)
+        {
+            Debug.Log("neutral");
+            dpad = 5;
+        }
+        else if (angle >= 22.5f && angle < 67.5f)
+        {
+            Debug.Log("up-right");
+            dpad = 9;
+        }
+        else if (angle >= 67.5f && angle < 112.5f)
+        {
+            Debug.Log("up");
+            dpad = 8;
+        }
+        else if (angle >= 112.5f && angle < 157.5f)
+        {
+            Debug.Log("up-left");
+            dpad = 7;
+        }
+        else if (angle >= 157.5f && angle < 202.5f)
+        {
+            Debug.Log("left");
+            dpad = 4;
+        }
+        else if (angle >= 202.5f && angle < 247.5f)
+        {
+            Debug.Log("down-left");
+            dpad = 1;
+        }
+        else if (angle >= 247.5f && angle < 292.5f)
+        {
+            Debug.Log("down");
+            dpad = 2;
+        }
+        else if (angle >= 292.5f && angle < 337.5f)
+        {
+            Debug.Log("down-right");
+            dpad = 3;
+        }
+        else 
+        {
+            Debug.Log("right");
+            dpad = 6;
+        } 
     }
 
-    private void DirectionTest(Vector2 input)
+    private void KeyboardDirection()
     {
-        testX = Mathf.RoundToInt(input.x);
-        testY = Mathf.RoundToInt(input.y);
+        
+        
+        if(keyboardInput.x == 0 && keyboardInput.y == 0)
+        {
+            dpad = 5;
+            hori = 0;
+            vert = 0;
+        }
+        else
+        {
+            if (keyboardInput.x == 0)
+            {
+                hori = 0;
+            }
+            else if (keyboardInput.x > 0) //right
+            {
+                hori = 1;
+            }
+            else if (keyboardInput.x < 0) //left
+            {
+                hori = -1;
+            }
 
-        if(testX == testY) return;
-        if(testX > 0 && testY == 0) Debug.Log("right");
-        if (testX < 0 && testY == 0) Debug.Log("left");
-        if (testX == 0 && testY > 0) Debug.Log("up");
-        if (testX == 0 && testY < 0) Debug.Log("down");
-        if (testX > 0 && testY > 0) Debug.Log("up-right");
-        if (testX < 0 && testY > 0) Debug.Log("up-left");
-        if (testX > 0 && testY < 0) Debug.Log("down-right");
-        if (testX < 0 && testY < 0) Debug.Log("down-left");
+            if(keyboardInput.y == 0)
+            {
+                vert = 0;
+            }
+            else if (keyboardInput.y > 0) //up
+            {
+                vert = 1;
+            }
+            else if (keyboardInput.y < 0) //down
+            {
+                vert = -1;
+            }
+        }
+
+        dpad = hori + 2 + ((vert + 1) * 3);
     }
 
     public void LastDirection()

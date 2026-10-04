@@ -4,18 +4,17 @@ public class Stats : MonoBehaviour
 {
     public float healthMax;
     public float healthCurrent;
-    [Space(3f)]
+    [Space(5f)]
 
-    public float attackSpeed;
     public float attackPower;
-    [Space(2f)]
+    [Space(3f)]
     public float defense;
 
-    [Space(3f)]
+    [Space(5f)]
     private InputReader player;
     bool isPlayer;
 
-    [Space(2f)]
+    [Space(3f)]
 
     public static bool isDead = false; //for player only
 
