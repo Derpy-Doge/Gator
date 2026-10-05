@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Timeline;
 using UnityEngine.UI;
 
 public class InputReader : MonoBehaviour
@@ -47,7 +48,9 @@ public class InputReader : MonoBehaviour
     public static int vert = 0;
 
     const int bufferlength = 60;
-    public List<int> dirBuffer = new List<int>(); // MAKE THIS STATIC LATER
+    public  List<int> dirBuffer = new List<int>(); // MAKE THIS STATIC LATER
+
+    bool faceLeft = false;
 
 
     [Space(7f)]
@@ -59,10 +62,20 @@ public class InputReader : MonoBehaviour
 
     [SerializeField] private int targetFPS = 60;
 
+    //directions like numpad
+
+    InputMotion testMotion = new InputMotion("Bingus!").Add(2, 8, false).Add(2, 8, false).Add(6, 8, false).Add(8, 8, false);
+
+    InputMotion[] motionQueue;
+    InputMotion[] failedMotionQueue;
+
     void Awake()
     {
         controls = new InputSystem_Actions();
         rb = GetComponent<Rigidbody2D>();
+
+        motionQueue = new InputMotion[] {testMotion};
+
         QualitySettings.vSyncCount = 0; //no vsync
         Application.targetFrameRate = targetFPS; //gonna try to keep ts at 60 for simplicities sake
     }
@@ -85,15 +98,9 @@ public class InputReader : MonoBehaviour
         };
         controls.Player.Move.canceled += ctx =>
         {
-            if (gamepad != null)
-            {
-
-            }
-            else
-            {              
-                keyboardInput = Vector2.zero;
-                KeyboardDirection();
-            }
+           keyboardInput = Vector2.zero;
+           KeyboardDirection();
+           dirBuffer.Insert(0, dpad);
         };
 
         controls.Player.Jump.performed += Jump;
@@ -130,9 +137,9 @@ public class InputReader : MonoBehaviour
     void Update()
     {
         tester = dpad;
-        gamepad = Gamepad.current;          
+        gamepad = Gamepad.current;
 
-        if(gamepad != null)
+        if (gamepad != null)
         {
             stickInput = gamepad.leftStick.ReadValue();
             moveVel.x = stickInput.x;
@@ -211,7 +218,7 @@ public class InputReader : MonoBehaviour
         while (dirBuffer.Count > bufferlength)
         {
             dirBuffer.RemoveAt(dirBuffer.Count - 1);
-        }
+        }       
     }
 
     void Jump(InputAction.CallbackContext ctx)
@@ -297,9 +304,7 @@ public class InputReader : MonoBehaviour
 
     private void KeyboardDirection()
     {
-        
-        
-        if(keyboardInput.x == 0 && keyboardInput.y == 0)
+        if (keyboardInput.x == 0 && keyboardInput.y == 0)
         {
             dpad = 5;
             hori = 0;
@@ -320,7 +325,7 @@ public class InputReader : MonoBehaviour
                 hori = -1;
             }
 
-            if(keyboardInput.y == 0)
+            if (keyboardInput.y == 0)
             {
                 vert = 0;
             }
@@ -335,6 +340,14 @@ public class InputReader : MonoBehaviour
         }
 
         dpad = hori + 2 + ((vert + 1) * 3);
+    }
+
+    public static int Sign(float value)
+    {
+        if (value > 0) return 1;
+        else if (value < 0) return -1;
+        else if (value == 0) return 0;
+        else return 0;
     }
 
     public void LastDirection()
