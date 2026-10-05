@@ -5,11 +5,11 @@ public struct dirUnit
 {
     public dirUnit(int newdir, int newwindow, bool newstrict)
     {
-        diretion = newdir;
+        direction = newdir;
         window = newwindow;
         strict = newstrict;
     }
-    public int diretion; // direction
+    public int direction; // direction
     public int window; // frame window for next input
     public bool strict; // strict or loose direction matching
 }
@@ -30,8 +30,8 @@ public class InputMotion
     }
     public string name;
     List<dirUnit> inputList;
-    public static List<int> dirBuffer;
-    bool faceLeft = false;
+    public List<int> dirBuffer = InputReader.dirBuffer;
+    bool faceLeft = false; // might take away the ability to face left :skull:
 
     public InputMotion Add(int direction, int window, bool strict)
     {
@@ -41,10 +41,8 @@ public class InputMotion
         return this;
     }
 
-    public bool CheckValidInput(List<int> buffer, bool faceL = false)
+    public bool CheckValidInput() 
     {
-       dirBuffer = buffer;
-       faceLeft = faceL;
         return CheckValidInput(0, 0);
     }
 
@@ -53,7 +51,7 @@ public class InputMotion
         for(int i = bufferPos; i < bufferPos + inputList[curInput].window; i++)
         {
             if (dirBuffer[i] == dirBuffer[i + 1]) continue;
-            if (CheckDir(dirBuffer[i], inputList[curInput].diretion, inputList[curInput].strict))
+            if (CheckDir(dirBuffer[i], inputList[curInput].direction, inputList[curInput].strict))
             {
                 if (curInput + 1 == inputList.Count)
                 {
@@ -71,24 +69,24 @@ public class InputMotion
 
     bool CheckDir(int curDir, int targetDir, bool strict)
     {
-        if (faceLeft)
-        {
-            switch (curDir)
-            {
-                case 7:
-                case 4:
-                case 1:
-                curDir += 2;
-                break;
-                case 9:
-                case 6:
-                case 3:
-                curDir -= 2;
-                break;
-                default:
-                break;
-            }
-        }
+        //if (faceLeft)
+        //{
+        //    switch (curDir)
+        //    {
+        //        case 7:
+        //        case 4:
+        //        case 1:
+        //        curDir += 2;
+        //        break;
+        //        case 9:
+        //        case 6:
+        //        case 3:
+        //        curDir -= 2;
+        //        break;
+        //        default:
+        //        break;
+        //    }
+        //}
 
         if (strict)
         {

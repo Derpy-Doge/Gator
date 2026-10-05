@@ -48,7 +48,7 @@ public class InputReader : MonoBehaviour
     public static int vert = 0;
 
     const int bufferlength = 60;
-    public  List<int> dirBuffer = new List<int>(); // MAKE THIS STATIC LATER
+    public static List<int> dirBuffer = new List<int>(); // MAKE THIS STATIC LATER
 
     bool faceLeft = false;
 
@@ -87,6 +87,7 @@ public class InputReader : MonoBehaviour
             if (gamepad != null)
             {               
                 OnTap(ctx);
+                dirBuffer.Insert(0, dpad);
             }
             else
             {
@@ -104,6 +105,19 @@ public class InputReader : MonoBehaviour
         };
 
         controls.Player.Jump.performed += Jump;
+
+        controls.Player.Attack.performed += ctx =>
+        {
+            if(dirBuffer.Count > 0)
+            {
+                if (testMotion.CheckValidInput())
+                {
+                    Debug.Log("gurt yo");
+                }
+            }
+            
+        };
+
         controls.Enable();
     }
 
@@ -340,14 +354,6 @@ public class InputReader : MonoBehaviour
         }
 
         dpad = hori + 2 + ((vert + 1) * 3);
-    }
-
-    public static int Sign(float value)
-    {
-        if (value > 0) return 1;
-        else if (value < 0) return -1;
-        else if (value == 0) return 0;
-        else return 0;
     }
 
     public void LastDirection()
