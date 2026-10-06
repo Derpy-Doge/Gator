@@ -13,7 +13,7 @@ public class InputReader : MonoBehaviour
     [Space (1f)]
     [Header("<size=11>Jumping</size>")]
     public float jumpForce;
-    private bool _canJump;
+
     [Space(7f)]
     [Header("Ground Check Settings")]
     [Space(3f)]
@@ -87,21 +87,19 @@ public class InputReader : MonoBehaviour
             if (gamepad != null)
             {               
                 OnTap(ctx);
-                dirBuffer.Insert(0, dpad);
+                //dirBuffer.Insert(0, dpad);
             }
             else
             {
                 keyboardInput = ctx.ReadValue<Vector2>();
                 KeyboardDirection();
-                dirBuffer.Insert(0, dpad);
+                //dirBuffer.Insert(0, dpad);
 
             }     
         };
         controls.Player.Move.canceled += ctx =>
         {
-           keyboardInput = Vector2.zero;
-           KeyboardDirection();
-           dirBuffer.Insert(0, dpad);
+           keyboardInput = Vector2.zero;       
         };
 
         controls.Player.Jump.performed += Jump;
@@ -112,7 +110,7 @@ public class InputReader : MonoBehaviour
             {
                 if (testMotion.CheckValidInput())
                 {
-                    Debug.Log("gurt yo");
+                    dirBuffer.Clear();
                 }
             }
             
@@ -180,7 +178,11 @@ public class InputReader : MonoBehaviour
         _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);
         if (_isGrounded)
         {
-            _canJump = true;
+            rb.gravityScale = 1f;
+        }
+        else
+        {
+            rb.gravityScale = 2f;
         }
 
         #region healthbar
@@ -237,9 +239,8 @@ public class InputReader : MonoBehaviour
 
     void Jump(InputAction.CallbackContext ctx)
     {
-        if (_canJump)
+        if (_isGrounded)
         {
-            _canJump = false;
             rb.linearVelocityY = jumpForce;
         }
         else
@@ -313,7 +314,9 @@ public class InputReader : MonoBehaviour
         {
             Debug.Log("right");
             dpad = 6;
-        } 
+        }
+
+        dirBuffer.Insert(0, dpad);
     }
 
     private void KeyboardDirection()

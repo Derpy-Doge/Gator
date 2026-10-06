@@ -30,7 +30,6 @@ public class InputMotion
     }
     public string name;
     List<dirUnit> inputList;
-    public List<int> dirBuffer = InputReader.dirBuffer;
     bool faceLeft = false; // might take away the ability to face left :skull:
 
     public InputMotion Add(int direction, int window, bool strict)
@@ -50,8 +49,7 @@ public class InputMotion
     {
         for(int i = bufferPos; i < bufferPos + inputList[curInput].window; i++)
         {
-            if (dirBuffer[i] == dirBuffer[i + 1]) continue;
-            if (CheckDir(dirBuffer[i], inputList[curInput].direction, inputList[curInput].strict))
+            if (CheckDir(InputReader.dirBuffer[i], inputList[curInput].direction, inputList[curInput].strict))
             {
                 if (curInput + 1 == inputList.Count)
                 {

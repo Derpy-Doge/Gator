@@ -60,8 +60,15 @@ public class Enemy : MonoBehaviour
 
         disatanceToPlayer = Mathf.Sqrt(Mathf.Pow(playrPos.x - pos.x, 2));
         Vector2 dir = (playrPos - pos).normalized;
-
-        rb.linearVelocityX = dir.x * speed;
+        if (isAttacking)
+        {
+            rb.linearVelocityX = 0;
+        }
+        else
+        {
+            rb.linearVelocityX = dir.x * speed;
+        }
+        
         #endregion
 
         #region direction

@@ -165,6 +165,32 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 16384
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -172,12 +198,12 @@ TextureImporter:
       name: walkspritesheet_0
       rect:
         serializedVersion: 2
-        x: 895
-        y: 10961
-        width: 1404
-        height: 1716
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 10800
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -194,12 +220,12 @@ TextureImporter:
       name: walkspritesheet_1
       rect:
         serializedVersion: 2
-        x: 1901
-        y: 11254
-        width: 766
-        height: 1243
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 10800
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -216,12 +242,12 @@ TextureImporter:
       name: walkspritesheet_2
       rect:
         serializedVersion: 2
-        x: 4737
-        y: 10961
-        width: 1773
-        height: 1725
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 10800
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -238,12 +264,12 @@ TextureImporter:
       name: walkspritesheet_3
       rect:
         serializedVersion: 2
-        x: 8579
-        y: 10946
-        width: 1773
-        height: 1748
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 11520
+        y: 10800
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -260,12 +286,12 @@ TextureImporter:
       name: walkspritesheet_4
       rect:
         serializedVersion: 2
-        x: 12419
-        y: 11007
-        width: 1773
-        height: 1680
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 8640
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -282,12 +308,12 @@ TextureImporter:
       name: walkspritesheet_5
       rect:
         serializedVersion: 2
-        x: 901
-        y: 8786
-        width: 1774
-        height: 1757
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 8640
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -304,12 +330,12 @@ TextureImporter:
       name: walkspritesheet_6
       rect:
         serializedVersion: 2
-        x: 4743
-        y: 8795
-        width: 1774
-        height: 1756
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 8640
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -326,12 +352,12 @@ TextureImporter:
       name: walkspritesheet_7
       rect:
         serializedVersion: 2
-        x: 8580
-        y: 8795
-        width: 1774
-        height: 1745
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 11520
+        y: 8640
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -348,12 +374,12 @@ TextureImporter:
       name: walkspritesheet_8
       rect:
         serializedVersion: 2
-        x: 12417
-        y: 8847
-        width: 1773
-        height: 1675
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 6480
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -370,12 +396,12 @@ TextureImporter:
       name: walkspritesheet_9
       rect:
         serializedVersion: 2
-        x: 897
-        y: 6635
-        width: 1774
-        height: 1734
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 6480
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -392,12 +418,12 @@ TextureImporter:
       name: walkspritesheet_10
       rect:
         serializedVersion: 2
-        x: 4735
-        y: 6717
-        width: 1772
-        height: 1640
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 6480
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -414,12 +440,12 @@ TextureImporter:
       name: walkspritesheet_11
       rect:
         serializedVersion: 2
-        x: 8575
-        y: 6717
-        width: 1772
-        height: 1640
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 11520
+        y: 6480
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -436,12 +462,12 @@ TextureImporter:
       name: walkspritesheet_12
       rect:
         serializedVersion: 2
-        x: 12415
-        y: 6641
-        width: 1772
-        height: 1716
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 4320
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -458,12 +484,12 @@ TextureImporter:
       name: walkspritesheet_13
       rect:
         serializedVersion: 2
-        x: 895
-        y: 4527
-        width: 1772
-        height: 1670
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 4320
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -480,12 +506,12 @@ TextureImporter:
       name: walkspritesheet_14
       rect:
         serializedVersion: 2
-        x: 4735
-        y: 4527
-        width: 1772
-        height: 1670
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 4320
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -502,12 +528,12 @@ TextureImporter:
       name: walkspritesheet_15
       rect:
         serializedVersion: 2
-        x: 8577
-        y: 4552
-        width: 1773
-        height: 1650
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 11520
+        y: 4320
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -524,12 +550,12 @@ TextureImporter:
       name: walkspritesheet_16
       rect:
         serializedVersion: 2
-        x: 12415
-        y: 4481
-        width: 1772
-        height: 1716
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 2160
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -546,12 +572,12 @@ TextureImporter:
       name: walkspritesheet_17
       rect:
         serializedVersion: 2
-        x: 899
-        y: 2392
-        width: 1773
-        height: 1655
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 2160
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -568,12 +594,12 @@ TextureImporter:
       name: walkspritesheet_18
       rect:
         serializedVersion: 2
-        x: 4741
-        y: 2388
-        width: 1773
-        height: 1664
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 2160
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -590,12 +616,12 @@ TextureImporter:
       name: walkspritesheet_19
       rect:
         serializedVersion: 2
-        x: 8584
-        y: 2388
-        width: 1772
-        height: 1669
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 11520
+        y: 2160
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -612,12 +638,12 @@ TextureImporter:
       name: walkspritesheet_20
       rect:
         serializedVersion: 2
-        x: 12415
-        y: 2321
-        width: 1772
-        height: 1716
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -634,12 +660,12 @@ TextureImporter:
       name: walkspritesheet_21
       rect:
         serializedVersion: 2
-        x: 906
-        y: 228
-        width: 1772
-        height: 1674
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 3840
+        y: 0
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -656,12 +682,12 @@ TextureImporter:
       name: walkspritesheet_22
       rect:
         serializedVersion: 2
-        x: 4744
-        y: 228
-        width: 1772
-        height: 1669
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 7680
+        y: 0
+        width: 3840
+        height: 2160
+      alignment: 9
+      pivot: {x: 0.45, y: 0.1}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -674,33 +700,11 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
-    - serializedVersion: 2
-      name: walkspritesheet_23
-      rect:
-        serializedVersion: 2
-        x: 8581
-        y: 228
-        width: 1773
-        height: 1664
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 943f4c0b82810ac60800000000000000
-      internalID: 7827282715413377865
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: fd6e8b0c6713bc743ba070bbc87d22a7
     internalID: 0
     vertices: []
     indices: 
@@ -708,7 +712,9 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":6.0},"gridSpriteSize":{"x":3840.0,"y":2160.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.44999998807907107,"y":0.10000000149011612},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":9,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
       walkspritesheet_0: -1080447093591452701
       walkspritesheet_1: 2432355983033219311
@@ -726,7 +732,6 @@ TextureImporter:
       walkspritesheet_20: 421264219942501293
       walkspritesheet_21: -7158823664315611315
       walkspritesheet_22: -4510933358484907509
-      walkspritesheet_23: 7827282715413377865
       walkspritesheet_3: 6654220023985885651
       walkspritesheet_4: -8904789852154481763
       walkspritesheet_5: -3582588696119977845
