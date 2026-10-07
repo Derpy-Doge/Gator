@@ -28,6 +28,10 @@ public class InputReader : MonoBehaviour
     public Image healthBar;
 
     [Space(7f)]
+    [Header("Animator")]
+    public Animator animator;
+
+    [Space(7f)]
     [Header("Input")]
     [SerializeField] private float inputDeadzone;
     Vector2 stickInput;
@@ -64,17 +68,20 @@ public class InputReader : MonoBehaviour
 
     //directions like numpad
 
-    InputMotion testMotion = new InputMotion("Bingus!").Add(2, 8, false).Add(2, 8, false).Add(6, 8, false).Add(8, 8, false);
 
-    InputMotion[] motionQueue;
-    InputMotion[] failedMotionQueue;
+    //up = 8, down = 2, left = 4, right = 6, up-left = 7, up-right = 9, down-left = 1, down-right = 3   
+    //NO DOUBLE INPUTS (ex. down, down, right, up)
+    InputMotion kick = new InputMotion("kick").Add(2, 20, false).Add(4, 20, false).Add(6, 20, false); // down, left, right
+    InputMotion bite = new InputMotion("bite").Add(8, 20, false).Add(6, 20, false); // up, right
+
+    InputMotion[] motions;
 
     void Awake()
     {
         controls = new InputSystem_Actions();
         rb = GetComponent<Rigidbody2D>();
 
-        motionQueue = new InputMotion[] {testMotion};
+        motions = new InputMotion[] {kick, bite};
 
         QualitySettings.vSyncCount = 0; //no vsync
         Application.targetFrameRate = targetFPS; //gonna try to keep ts at 60 for simplicities sake
@@ -87,31 +94,46 @@ public class InputReader : MonoBehaviour
             if (gamepad != null)
             {               
                 OnTap(ctx);
-                //dirBuffer.Insert(0, dpad);
+                animator.SetBool("walking", true);
             }
             else
             {
                 keyboardInput = ctx.ReadValue<Vector2>();
                 KeyboardDirection();
-                //dirBuffer.Insert(0, dpad);
 
             }     
         };
         controls.Player.Move.canceled += ctx =>
         {
-           keyboardInput = Vector2.zero;       
+            animator.SetBool("walking", false);
+            keyboardInput = Vector2.zero;       
         };
 
-        controls.Player.Jump.performed += Jump;
+        //controls.Player.Jump.performed += Jump;
 
         controls.Player.Attack.performed += ctx =>
         {
             if(dirBuffer.Count > 0)
-            {
-                if (testMotion.CheckValidInput())
+            { // everything in here gng
+                // put harder moves first and easiest ones at the bottom
+
+                foreach(InputMotion motion in motions)
                 {
-                    dirBuffer.Clear();
+                    if (motion.CheckValidInput())
+                    {
+                        controls.Disable();
+                        if(animator != null)
+                        {
+                            animator.SetTrigger(motion.name);
+                        }
+                        dirBuffer.Clear();
+                        //spawn hitbox
+                        controls.Enable();
+                        return;
+                    }
                 }
+                
+                // punch logic?
             }
             
         };
@@ -150,6 +172,7 @@ public class InputReader : MonoBehaviour
     {
         tester = dpad;
         gamepad = Gamepad.current;
+
 
         if (gamepad != null)
         {
@@ -234,7 +257,8 @@ public class InputReader : MonoBehaviour
         while (dirBuffer.Count > bufferlength)
         {
             dirBuffer.RemoveAt(dirBuffer.Count - 1);
-        }       
+        }
+        dirBuffer.Insert(0, dpad);
     }
 
     void Jump(InputAction.CallbackContext ctx)
@@ -248,7 +272,7 @@ public class InputReader : MonoBehaviour
             return;
         }
 
-    }
+    } // yea i broke his ankles
 
     void OnTap(InputAction.CallbackContext ctx)
     {

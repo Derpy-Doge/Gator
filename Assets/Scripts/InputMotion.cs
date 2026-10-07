@@ -49,6 +49,7 @@ public class InputMotion
     {
         for(int i = bufferPos; i < bufferPos + inputList[curInput].window; i++)
         {
+            if (InputReader.dirBuffer[i] == InputReader.dirBuffer[i + 1]) continue; // continue is pretty much a skip
             if (CheckDir(InputReader.dirBuffer[i], inputList[curInput].direction, inputList[curInput].strict))
             {
                 if (curInput + 1 == inputList.Count)

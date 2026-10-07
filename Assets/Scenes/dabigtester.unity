@@ -408,7 +408,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   healthBar: {fileID: 1764555788}
-  inputDeadzone: 0.23
+  animator: {fileID: 137816692}
+  inputDeadzone: 0.22
   tester: 0
   fpsText: {fileID: 644200251}
   targetFPS: 60

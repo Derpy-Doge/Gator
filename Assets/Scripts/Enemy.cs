@@ -12,7 +12,6 @@ public class Enemy : MonoBehaviour
 
     Vector2 pos;
     Vector2 playrPos;
-    float disatanceToPlayer;
     private Vector2 direction;
 
     [Space(7f)]
@@ -58,7 +57,6 @@ public class Enemy : MonoBehaviour
         playrPos = player.transform.position;
         pos = transform.position;
 
-        disatanceToPlayer = Mathf.Sqrt(Mathf.Pow(playrPos.x - pos.x, 2));
         Vector2 dir = (playrPos - pos).normalized;
         if (isAttacking)
         {
