@@ -14,7 +14,6 @@ public struct Attack
     [Space(7f)]
     public float damageMult; // punches do base and everything else does base * damageMult
     public float knockback;
-    public bool isAttacking;
     [Space(7f)]
     public int pointsOnHit;
 }
@@ -22,6 +21,7 @@ public struct Attack
 public class SpawnHitbox : MonoBehaviour
 {
     public LayerMask attackLayer;
+    public bool isAttacking;
 
 
     [Tooltip("SAME ORDER AS THE LIST IN INPUT READER I BEG")]public List<Attack> attacks = new List<Attack>();
@@ -42,12 +42,18 @@ public class SpawnHitbox : MonoBehaviour
 
     public IEnumerator Hitbox(Attack attack)
     {
-        attack.isAttacking = true;
+        isAttacking = true;
+
         displayHitbox = true;
+
         Animator animator = player.gameObject.GetComponent<Animator>();
+        InputReader playr = player.gameObject.GetComponent<InputReader>();
+
         animator.SetBool("isAttacking", true);
+        playr.controls.FindAction("Move").Disable();
 
         Vector3 offset = new Vector3(0, attack.yOffset);
+        yield return WaitForAnimEnd(attack);
         RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attack.radius, transform.right, attack.range, attackLayer);
         if(hitInfo.collider != null)
         {
@@ -61,28 +67,22 @@ public class SpawnHitbox : MonoBehaviour
                 hitInfo.collider.GetComponent<Rigidbody2D>().AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
 
                 Debug.Log("Hit " + hitInfo.collider.name + " with " + attack.attackName);
+
+                Gurt score = GetComponent<Gurt>();
+                score.AddScore(attack.pointsOnHit);
             }
         }
 
-        //yield return WaitForAnimEnd(attack);
-        yield return RunAnim(attack);
 
-        attack.isAttacking = false;
+
+        isAttacking = false;
         displayHitbox = false;
+
         animator.SetBool("isAttacking", false);
-        player.gameObject.GetComponent<InputReader>().controls.Enable();
+        playr.controls.FindAction("Move").Enable();
         yield return null;
     }
-
-    public IEnumerator RunAnim(Attack attack)
-    {
-        Animator animator = player.gameObject.GetComponent<Animator>();
-        animator.SetTrigger(attack.attackName);
-        //yield return new WaitUntil(() => 
-        //animator.GetCurrentAnimatorStateInfo(0).normalizedTime >= 1f && !animator.IsInTransition(0));
-        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
-    }
-    public IEnumerator WaitForAnimEnd(Attack attack, float timeout = 2f)
+    public IEnumerator WaitForAnimEnd(Attack attack, float timeout = .5f)
     {
         InputReader player = this.GetComponent<InputReader>();
         if (player?.animator == null)
@@ -94,39 +94,14 @@ public class SpawnHitbox : MonoBehaviour
         int hash = Animator.StringToHash(attack.attackName);
 
         // wait for anim to start (or transition to it) up to timeout
-        float timer = 0f;
-        bool started = false;
+
+        player.animator.CrossFade(attack.attackName, 0f, 0);
+
+        //wait for anim to finish
+        float timer = 0f;   
         while (timer < timeout)
         {
-            var current = player.animator.GetCurrentAnimatorStateInfo(0);
-            var next = player.animator.GetNextAnimatorStateInfo(0);
-
-            if (current.shortNameHash == hash)
-            {
-                started = true;
-                break;
-            }
-            // if in transition and the next state is the target anim, treat as started
-            if (player.animator.IsInTransition(0) && next.shortNameHash == hash)
-            {
-                started = true;
-                break;
-            }
-
-            timer += Time.deltaTime;
-            yield return null;
-        }
-
-        if (!started)
-        {
-            // anim never started within timeout exit
-            yield break;
-        }
-
-        //wait for Transform to finish
-        timer = 0f;
-        while (timer < timeout)
-        {
+            yield return new WaitForEndOfFrame();
             var current = player.animator.GetCurrentAnimatorStateInfo(0);
 
             if (current.shortNameHash != hash && !player.animator.IsInTransition(0))
@@ -148,10 +123,11 @@ public class SpawnHitbox : MonoBehaviour
 
         for(int i = 0; i < attacks.Count; i++)
         {
-            if(attacks[i].isAttacking)
+            if(isAttacking)
             {
+                Vector3 offset2 = new Vector3(0, attacks[i].yOffset);
                 Gizmos.color = Color.white;
-                Gizmos.DrawWireSphere(transform.position + transform.right * attacks[i].range, attacks[i].radius);
+                Gizmos.DrawWireSphere((transform.position + offset2) + transform.right * attacks[i].range, attacks[i].radius);
             }
         }       
     }

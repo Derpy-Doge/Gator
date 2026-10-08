@@ -14,7 +14,8 @@ public class Stats : MonoBehaviour
     private InputReader player;
     bool isPlayer;
 
-    [Space(3f)]
+    [Space(5f)]
+    public Gurt score;
 
     public static bool isDead = false; //for player only
 
@@ -26,6 +27,8 @@ public class Stats : MonoBehaviour
         {
             isPlayer = true;
         }
+
+        score = FindAnyObjectByType<Gurt>();
     }
 
     
@@ -37,7 +40,7 @@ public class Stats : MonoBehaviour
         }
         else if (healthCurrent <= 0 && !isPlayer)
         {
-            //award points
+            score.AddScore(gameObject.GetComponent<Enemy>().pointsOnDeath);
             Destroy(gameObject);
         }
 

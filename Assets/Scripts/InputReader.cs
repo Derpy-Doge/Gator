@@ -95,6 +95,7 @@ public class InputReader : MonoBehaviour
 
     void OnEnable()
     {
+        controls.Enable();
         controls.Player.Move.performed += ctx =>
         {
             if (gamepad != null)
@@ -117,7 +118,7 @@ public class InputReader : MonoBehaviour
 
         controls.Player.Attack.performed += ctx =>
         {
-            if(dirBuffer.Count > 0)
+            if (dirBuffer.Count > 0)
             { // everything in here gng
                 // put harder moves first and easiest ones at the bottom
 
@@ -125,14 +126,12 @@ public class InputReader : MonoBehaviour
                 {
                     if (motions[i].CheckValidInput())
                     {
-                        controls.Disable();
                         if (animator != null)
                         {
                             animator.SetTrigger(motions[i].name);
                         }
                         dirBuffer.Clear();
                         hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[i]));
-                        controls.Enable();
                         return;
                     }
                 }
@@ -152,20 +151,16 @@ public class InputReader : MonoBehaviour
                 //        return;
                 //    }
                 //}
-
-                controls.Disable();
                 hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1])); // default punch
                 dirBuffer.Clear();
             }
             else
             {
-                controls.Disable();
                 hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1]));
             }
             
         };
 
-        controls.Enable();
     }
 
     void OnDisable( )
@@ -210,6 +205,11 @@ public class InputReader : MonoBehaviour
             if (gamepad.buttonEast.wasPressedThisFrame) Debug.Log("east button");
             if (gamepad.buttonSouth.wasPressedThisFrame) Debug.Log("south button");
             if (gamepad.buttonWest.wasPressedThisFrame) Debug.Log("west button");
+
+            if (hitbox.isAttacking)
+            {
+                rb.linearVelocityX = 0;
+            }
         }
         else
         {

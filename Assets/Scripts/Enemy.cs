@@ -21,7 +21,8 @@ public class Enemy : MonoBehaviour
 
     public float attackRadius = .5f;
     public float attackRange = .3f;
-    private bool isAttacking = false;
+    public float yOffset;
+    private bool isAttacking;
     private bool canAttack = true;
     public float attackCooldown = 3f;
 
@@ -46,7 +47,8 @@ public class Enemy : MonoBehaviour
     
     void Update()
     {
-        RaycastHit2D hitInfo = Physics2D.CircleCast(transform.position, attackRadius, direction * .4f, attackRange, attackLayer);
+        Vector3 offset = new Vector3(0, yOffset);
+        RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attackRadius, direction * .4f, attackRange, attackLayer);
 
         if(hitInfo.collider && canAttack)
         {
@@ -61,6 +63,7 @@ public class Enemy : MonoBehaviour
         if (isAttacking)
         {
             rb.linearVelocityX = 0;
+            //Debug.Log("gurt yo");
         }
         else
         {
@@ -84,18 +87,24 @@ public class Enemy : MonoBehaviour
     {
         canAttack = false;
         isAttacking = true;
-        RaycastHit2D hitInfo = Physics2D.CircleCast(transform.position, attackRadius, direction * .4f, attackRange, attackLayer);
-        if(hitInfo.collider.TryGetComponent(out Stats player))
-        {
-            float calculatedDamage = GetComponent<Stats>().attackPower - player.defense;
-            player.healthCurrent -= calculatedDamage;
-        }
-        else
-        {
-            Debug.Log("yo you don have stats cuh");
-        }
-        isAttacking = false;
 
+        Vector3 offset = new Vector3(0, yOffset);
+        RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attackRadius, direction * .4f, attackRange, attackLayer);
+        if(hitInfo.collider != null)
+        {
+
+            if (hitInfo.collider.TryGetComponent(out Stats player))
+            {
+                float calculatedDamage = GetComponent<Stats>().attackPower - player.defense;
+                player.healthCurrent -= calculatedDamage;
+            }
+            else
+            {
+                Debug.Log("yo you don have stats cuh");
+            }
+        }
+        yield return new WaitForSeconds(.5f); // replace this with wait for anim logic
+        isAttacking = false;
         yield return new WaitForSeconds(attackCooldown);
 
         canAttack = true;
@@ -104,6 +113,7 @@ public class Enemy : MonoBehaviour
     public void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position + new Vector3(direction.x, 0, 0) * attackRange, attackRadius);
+        Vector3 offset = new Vector3(0, yOffset);
+        Gizmos.DrawWireSphere((transform.position + offset) + -transform.right * attackRange, attackRadius);
     }
 }
