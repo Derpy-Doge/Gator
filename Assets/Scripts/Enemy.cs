@@ -84,7 +84,6 @@ public class Enemy : MonoBehaviour
     {
         canAttack = false;
         isAttacking = true;
-
         RaycastHit2D hitInfo = Physics2D.CircleCast(transform.position, attackRadius, direction * .4f, attackRange, attackLayer);
         if(hitInfo.collider.TryGetComponent(out Stats player))
         {

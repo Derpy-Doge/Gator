@@ -268,11 +268,12 @@ GameObject:
   m_Component:
   - component: {fileID: 137816686}
   - component: {fileID: 137816685}
+  - component: {fileID: 137816693}
+  - component: {fileID: 137816691}
   - component: {fileID: 137816684}
   - component: {fileID: 137816688}
   - component: {fileID: 137816690}
   - component: {fileID: 137816689}
-  - component: {fileID: 137816691}
   - component: {fileID: 137816692}
   m_Layer: 6
   m_Name: player or smth
@@ -409,6 +410,7 @@ MonoBehaviour:
     m_Bits: 8
   healthBar: {fileID: 1764555788}
   animator: {fileID: 137816692}
+  hitbox: {fileID: 137816693}
   inputDeadzone: 0.22
   tester: 0
   fpsText: {fileID: 644200251}
@@ -478,9 +480,9 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 5
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: e52a1ebadcea33f4d8711ed96bf08727, type: 3}
+  m_Sprite: {fileID: 8793639957104055765, guid: e3b0f5b2a5a60f748a1f7f8e2606bd4d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 2.56, y: 1.868}
@@ -591,6 +593,30 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &137816693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137816683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3f184c6f82555a4f87782b5e324f346, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SpawnHitbox
+  attackLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  attacks:
+  - attackName: punch
+    radius: 2.5
+    range: 4.2
+    yOffset: 4.7
+    damageMult: 1
+    knockback: 3
+    isAttacking: 0
+    pointsOnHit: 0
 --- !u!1 &437051209
 GameObject:
   m_ObjectHideFlags: 0
@@ -605,7 +631,7 @@ GameObject:
   - component: {fileID: 437051211}
   - component: {fileID: 437051210}
   - component: {fileID: 437051215}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: evil monokuma
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -624,7 +650,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5f3d57fe246dcb48bd646118050c37e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  speed: 1.5
+  speed: 5
   attackLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -765,8 +791,8 @@ Transform:
   m_GameObject: {fileID: 437051209}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.05, y: -0.5, z: 0}
-  m_LocalScale: {x: 1.1491245, y: 2.7370226, z: 0.6619}
+  m_LocalPosition: {x: 56.9, y: 5, z: 0}
+  m_LocalScale: {x: 4.42, y: 8.37, z: 0.6619}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1774,7 +1800,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0.7311321, b: 0.7311321, a: 1}
+  m_Color: {r: 1, g: 0.7311321, b: 0.7311321, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

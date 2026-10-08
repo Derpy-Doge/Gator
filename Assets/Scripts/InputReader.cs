@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -32,6 +33,10 @@ public class InputReader : MonoBehaviour
     public Animator animator;
 
     [Space(7f)]
+    [Header("Hitbox")]
+    public SpawnHitbox hitbox;
+
+    [Space(7f)]
     [Header("Input")]
     [SerializeField] private float inputDeadzone;
     Vector2 stickInput;
@@ -40,7 +45,7 @@ public class InputReader : MonoBehaviour
     Vector2 keyboardInput;
 
     Rigidbody2D rb;
-    InputSystem_Actions controls;
+    [HideInInspector]public InputSystem_Actions controls;
 
     Vector3 direction;
     Vector2 currentInput;
@@ -70,7 +75,8 @@ public class InputReader : MonoBehaviour
 
 
     //up = 8, down = 2, left = 4, right = 6, up-left = 7, up-right = 9, down-left = 1, down-right = 3   
-    //NO DOUBLE INPUTS (ex. down, down, right, up)
+    //NO DOUBLE INPUTS (ex. down, down, right, up)... actually maybe  i fixed it
+    InputMotion test = new InputMotion("test").Add(2, 20, false).Add(2, 20, false).Add(6, 20, false).Add(8, 20, false);
     InputMotion kick = new InputMotion("kick").Add(2, 20, false).Add(4, 20, false).Add(6, 20, false); // down, left, right
     InputMotion bite = new InputMotion("bite").Add(8, 20, false).Add(6, 20, false); // up, right
 
@@ -93,8 +99,7 @@ public class InputReader : MonoBehaviour
         {
             if (gamepad != null)
             {               
-                OnTap(ctx);
-                animator.SetBool("walking", true);
+                OnTap(ctx);               
             }
             else
             {
@@ -105,7 +110,6 @@ public class InputReader : MonoBehaviour
         };
         controls.Player.Move.canceled += ctx =>
         {
-            animator.SetBool("walking", false);
             keyboardInput = Vector2.zero;       
         };
 
@@ -117,23 +121,46 @@ public class InputReader : MonoBehaviour
             { // everything in here gng
                 // put harder moves first and easiest ones at the bottom
 
-                foreach(InputMotion motion in motions)
+                for(int i = 0; i < motions.Length; i++)
                 {
-                    if (motion.CheckValidInput())
+                    if (motions[i].CheckValidInput())
                     {
                         controls.Disable();
-                        if(animator != null)
+                        if (animator != null)
                         {
-                            animator.SetTrigger(motion.name);
+                            animator.SetTrigger(motions[i].name);
                         }
                         dirBuffer.Clear();
-                        //spawn hitbox
+                        hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[i]));
                         controls.Enable();
                         return;
                     }
                 }
-                
-                // punch logic?
+
+                //foreach (InputMotion motion in motions)
+                //{
+                //    if (motion.CheckValidInput())
+                //    {
+                //        controls.Disable();
+                //        if(animator != null)
+                //        {
+                //            animator.SetTrigger(motion.name);
+                //        }
+                //        dirBuffer.Clear();
+                //        //spawn hitbox
+                //        controls.Enable();
+                //        return;
+                //    }
+                //}
+
+                controls.Disable();
+                hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1])); // default punch
+                dirBuffer.Clear();
+            }
+            else
+            {
+                controls.Disable();
+                hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1]));
             }
             
         };
@@ -192,10 +219,13 @@ public class InputReader : MonoBehaviour
         if(moveVel.magnitude > inputDeadzone)
         {
             rb.linearVelocityX = moveVel.x * walkSpeed;
+            animator.SetBool("walking", true);
         }
         else
         {
             rb.linearVelocityX = 0;
+            dpad = 5;
+            animator.SetBool("walking", false);
         }
 
         _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);
