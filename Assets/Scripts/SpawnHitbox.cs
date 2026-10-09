@@ -12,6 +12,7 @@ public struct Attack
     [Space(5f)]
     public float yOffset;
     [Space(7f)]
+    public float damage;
     public float damageMult; // punches do base and everything else does base * damageMult
     public float knockback;
     [Space(7f)]
@@ -22,7 +23,8 @@ public class SpawnHitbox : MonoBehaviour
 {
     public LayerMask attackLayer;
     public bool isAttacking;
-
+    public float punchCooldown = 2f;
+    public bool canPunch = true;
 
     [Tooltip("SAME ORDER AS THE LIST IN INPUT READER I BEG")]public List<Attack> attacks = new List<Attack>();
     Stats player;
@@ -53,20 +55,40 @@ public class SpawnHitbox : MonoBehaviour
         playr.controls.FindAction("Move").Disable();
 
         Vector3 offset = new Vector3(0, attack.yOffset);
-        yield return WaitForAnimEnd(attack);
         RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attack.radius, transform.right, attack.range, attackLayer);
+
+        yield return WaitForAnimEnd(attack);
+
         if(hitInfo.collider != null)
         {
             if (hitInfo.collider.TryGetComponent(out Stats enemy))
             {
-                float calculatedDamage = (player.attackPower * attack.damageMult) - enemy.defense;
-                enemy.healthCurrent -= calculatedDamage;
+                float calculatedDamage = attack.damage - enemy.defense;
+                enemy.healthCurrent -= calculatedDamage;               
+
+                if (enemy.gameObject.GetComponent<Enemy>().stunned)
+                {
+                    enemy.gameObject.GetComponent<Enemy>().StopAllCoroutines();
+
+                    if(attack.attackName == "punch")
+                    {
+                        enemy.gameObject.GetComponent<Enemy>().hitstunTime *= 1f;
+                    }
+                    else
+                    {
+                        enemy.gameObject.GetComponent<Enemy>().hitstunTime *= 1.2f;
+
+                        float points = enemy.gameObject.GetComponent<Enemy>().pointsOnDeath;
+                        points *= 1.2f;
+                        float calcedPoints = Mathf.Round(points);
+                        enemy.gameObject.GetComponent<Enemy>().pointsOnDeath = (int)calcedPoints;
+                    }
+                }
+                enemy.gameObject.GetComponent<Enemy>().StartCoroutine(enemy.gameObject.GetComponent<Enemy>().Hitstun());
 
                 Vector2 knockbackDir = (enemy.transform.position - transform.position).normalized;
                 float knockbackForce = attack.knockback;
                 hitInfo.collider.GetComponent<Rigidbody2D>().AddForce(knockbackDir * knockbackForce, ForceMode2D.Impulse);
-
-                Debug.Log("Hit " + hitInfo.collider.name + " with " + attack.attackName);
 
                 Gurt score = GetComponent<Gurt>();
                 score.AddScore(attack.pointsOnHit);
@@ -80,13 +102,33 @@ public class SpawnHitbox : MonoBehaviour
 
         animator.SetBool("isAttacking", false);
         playr.controls.FindAction("Move").Enable();
-        yield return null;
+
+        float cooldown = 0f;
+        while (cooldown < punchCooldown)
+        {
+            canPunch = false;
+            cooldown += Time.deltaTime;
+            yield return null;
+        }
+
+        canPunch = true;
     }
-    public IEnumerator WaitForAnimEnd(Attack attack, float timeout = .5f)
+    public IEnumerator WaitForAnimEnd(Attack attack)
     {
+        float timeout;
+
         InputReader player = this.GetComponent<InputReader>();
         if (player?.animator == null)
             yield break;
+
+        if(attack.attackName == "punch")
+        {
+            timeout = .5f;
+        }
+        else
+        {
+            timeout = .35f;
+        }
 
         player.animator.SetTrigger(attack.attackName);      
         player.animator.Update(0f);
@@ -102,10 +144,10 @@ public class SpawnHitbox : MonoBehaviour
         while (timer < timeout)
         {
             yield return new WaitForEndOfFrame();
-            var current = player.animator.GetCurrentAnimatorStateInfo(0);
+            //var current = player.animator.GetCurrentAnimatorStateInfo(0);
 
-            if (current.shortNameHash != hash && !player.animator.IsInTransition(0))
-                break;
+            //if (current.shortNameHash != hash && !player.animator.IsInTransition(0))
+            //    break;
 
             timer += Time.deltaTime;
             yield return null;

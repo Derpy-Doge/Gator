@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -18,20 +20,30 @@ public class Enemy : MonoBehaviour
     [Header("Combat")]
     [Space(3f)]
     public LayerMask attackLayer;
-
+    [Space(5f)]
     public float attackRadius = .5f;
     public float attackRange = .3f;
     public float yOffset;
     private bool isAttacking;
     private bool canAttack = true;
     public float attackCooldown = 3f;
+    [Space(5f)]
+    public float hitstunTime = .25f; 
+    public bool stunned = false;
 
     [Space(5f)]
     public int pointsOnDeath;
 
+    [Space(7f)]
+    [Header("Animator")]
+
+    Animator animator;
+
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
     }
 
 
@@ -50,7 +62,7 @@ public class Enemy : MonoBehaviour
         Vector3 offset = new Vector3(0, yOffset);
         RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attackRadius, direction * .4f, attackRange, attackLayer);
 
-        if(hitInfo.collider && canAttack)
+        if(hitInfo.collider && canAttack && !isAttacking)
         {
             StartCoroutine(Attack());
         }
@@ -63,13 +75,17 @@ public class Enemy : MonoBehaviour
         if (isAttacking)
         {
             rb.linearVelocityX = 0;
-            //Debug.Log("gurt yo");
         }
         else
         {
             rb.linearVelocityX = dir.x * speed;
         }
         
+        if(stunned)
+        {
+            rb.linearVelocityX = 0;
+        }
+
         #endregion
 
         #region direction
@@ -83,11 +99,26 @@ public class Enemy : MonoBehaviour
         #endregion
     }
 
+    public IEnumerator Hitstun()
+    {
+        stunned = true;
+        yield return WaitForAnimEnd("hurt");
+        stunned = false;
+        animator.Play("walk");
+        yield return new WaitForSeconds(attackCooldown/1.5f);
+        canAttack = true;
+    }
+
     IEnumerator Attack()
     {
         canAttack = false;
         isAttacking = true;
 
+        PlayIdle();
+
+        yield return new WaitForSeconds(.1f);
+
+        yield return WaitForAnimEnd("punch");
         Vector3 offset = new Vector3(0, yOffset);
         RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attackRadius, direction * .4f, attackRange, attackLayer);
         if(hitInfo.collider != null)
@@ -103,11 +134,64 @@ public class Enemy : MonoBehaviour
                 Debug.Log("yo you don have stats cuh");
             }
         }
-        yield return new WaitForSeconds(.5f); // replace this with wait for anim logic
         isAttacking = false;
+
+        if (!stunned)
+        {
+            animator.Play("walk");
+        }
+
         yield return new WaitForSeconds(attackCooldown);
 
         canAttack = true;
+    }
+
+    public IEnumerator WaitForAnimEnd(string anim)
+    {
+        float timeout;
+
+        if (animator == null)
+        {
+            yield break;
+        }
+
+        if (anim == "punch")
+        {
+            timeout = .5f;
+        }
+        else
+        {
+            timeout = hitstunTime;
+        }
+
+        animator.SetTrigger(anim);
+        animator.Update(0f);
+
+        int hash = Animator.StringToHash(anim);
+
+        animator.CrossFade(anim, 0f, 0);
+
+        //wait for anim to finish
+        float timer = 0f;
+        while (timer < timeout)
+        {
+            yield return new WaitForEndOfFrame();
+            var current = animator.GetCurrentAnimatorStateInfo(0);
+
+            if (current.shortNameHash != hash && !animator.IsInTransition(0))
+                break;
+
+            timer += Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    public void PlayIdle()
+    {
+        if (animator != null)
+        {
+            animator.Play("idle");
+        }
     }
 
     public void OnDrawGizmos()

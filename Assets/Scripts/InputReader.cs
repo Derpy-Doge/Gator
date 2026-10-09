@@ -75,8 +75,6 @@ public class InputReader : MonoBehaviour
 
 
     //up = 8, down = 2, left = 4, right = 6, up-left = 7, up-right = 9, down-left = 1, down-right = 3   
-    //NO DOUBLE INPUTS (ex. down, down, right, up)... actually maybe  i fixed it
-    InputMotion test = new InputMotion("test").Add(2, 20, false).Add(2, 20, false).Add(6, 20, false).Add(8, 20, false);
     InputMotion kick = new InputMotion("kick").Add(2, 20, false).Add(4, 20, false).Add(6, 20, false); // down, left, right
     InputMotion bite = new InputMotion("bite").Add(8, 20, false).Add(6, 20, false); // up, right
 
@@ -99,7 +97,7 @@ public class InputReader : MonoBehaviour
         controls.Player.Move.performed += ctx =>
         {
             if (gamepad != null)
-            {               
+            {
                 OnTap(ctx);               
             }
             else
@@ -118,11 +116,15 @@ public class InputReader : MonoBehaviour
 
         controls.Player.Attack.performed += ctx =>
         {
+            if(hitbox.isAttacking)
+            {
+                return;
+            }
+
             if (dirBuffer.Count > 0)
             { // everything in here gng
                 // put harder moves first and easiest ones at the bottom
-
-                for(int i = 0; i < motions.Length; i++)
+                for (int i = 0; i < motions.Length; i++)
                 {
                     if (motions[i].CheckValidInput())
                     {
@@ -136,27 +138,21 @@ public class InputReader : MonoBehaviour
                     }
                 }
 
-                //foreach (InputMotion motion in motions)
-                //{
-                //    if (motion.CheckValidInput())
-                //    {
-                //        controls.Disable();
-                //        if(animator != null)
-                //        {
-                //            animator.SetTrigger(motion.name);
-                //        }
-                //        dirBuffer.Clear();
-                //        //spawn hitbox
-                //        controls.Enable();
-                //        return;
-                //    }
-                //}
-                hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1])); // default punch
+                if (hitbox.canPunch)
+                {
+                    hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1]));  // default punch
+                }
+
                 dirBuffer.Clear();
+                return;
             }
             else
             {
-                hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1]));
+                if (hitbox.canPunch)
+                {
+                    hitbox.StartCoroutine(hitbox.Hitbox(hitbox.attacks[hitbox.attacks.Count - 1]));
+                }
+                return;
             }
             
         };
@@ -195,10 +191,27 @@ public class InputReader : MonoBehaviour
         tester = dpad;
         gamepad = Gamepad.current;
 
+        if (hitbox.isAttacking)
+        {
+            stickInput = Vector2.zero;
+            animator.SetBool("walking", false);
+            rb.linearVelocityX = 0;
+            moveVel.x = 0;
+        }
+        else
+        {
+            stickInput = gamepad.leftStick.ReadValue();
+        }
 
         if (gamepad != null)
         {
-            stickInput = gamepad.leftStick.ReadValue();
+            if (hitbox.isAttacking)
+            {
+                rb.linearVelocityX = 0;
+                moveVel.x = 0;
+            }
+
+            
             moveVel.x = stickInput.x;
 
             if (gamepad.buttonNorth.wasPressedThisFrame) Debug.Log("north button");
@@ -206,10 +219,7 @@ public class InputReader : MonoBehaviour
             if (gamepad.buttonSouth.wasPressedThisFrame) Debug.Log("south button");
             if (gamepad.buttonWest.wasPressedThisFrame) Debug.Log("west button");
 
-            if (hitbox.isAttacking)
-            {
-                rb.linearVelocityX = 0;
-            }
+
         }
         else
         {
@@ -218,14 +228,30 @@ public class InputReader : MonoBehaviour
 
         if(moveVel.magnitude > inputDeadzone)
         {
-            rb.linearVelocityX = moveVel.x * walkSpeed;
-            animator.SetBool("walking", true);
+            if (hitbox.isAttacking)
+            {
+                rb.linearVelocityX = 0;
+                moveVel.x = 0;
+            }
+            else
+            {
+                rb.linearVelocityX = moveVel.x * walkSpeed;
+                animator.SetBool("walking", true);
+            }               
         }
         else
         {
-            rb.linearVelocityX = 0;
-            dpad = 5;
-            animator.SetBool("walking", false);
+            if (hitbox.isAttacking)
+            {
+                rb.linearVelocityX = 0;
+                moveVel.x = 0;
+            }
+            else
+            {
+                rb.linearVelocityX = 0;
+                dpad = 5;
+                animator.SetBool("walking", false);
+            }              
         }
 
         _isGrounded = Physics2D.OverlapBox(groundCheckPoint.position, groundChecksize / 2, 0, ground);

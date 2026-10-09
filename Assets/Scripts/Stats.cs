@@ -1,4 +1,6 @@
+using Unity.VectorGraphics;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Stats : MonoBehaviour
 {
@@ -37,6 +39,7 @@ public class Stats : MonoBehaviour
         if (healthCurrent <= 0 && isPlayer)
         {
             isDead = true;
+            SceneManager.LoadScene("Lose");
         }
         else if (healthCurrent <= 0 && !isPlayer)
         {
