@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
@@ -27,6 +28,7 @@ public class Enemy : MonoBehaviour
     private bool isAttacking;
     private bool canAttack = true;
     public float attackCooldown = 3f;
+    public float baseCooldown = 3f;
     [Space(5f)]
     public float hitstunTime = .25f; 
     public bool stunned = false;
@@ -38,6 +40,10 @@ public class Enemy : MonoBehaviour
     [Header("Animator")]
 
     Animator animator;
+
+    [Space(7f)]
+    [Header("Healthbar")]
+    public Image healthBar;
 
 
     private void Awake()
@@ -72,20 +78,22 @@ public class Enemy : MonoBehaviour
         pos = transform.position;
 
         Vector2 dir = (playrPos - pos).normalized;
-        if (isAttacking)
+        if (isAttacking || stunned)
         {
             rb.linearVelocityX = 0;
         }
         else
         {
             rb.linearVelocityX = dir.x * speed;
-        }
-        
-        if(stunned)
-        {
-            rb.linearVelocityX = 0;
-        }
+        }       
+        #endregion
 
+        #region healthbar
+        Stats stats = GetComponent<Stats>();
+        if (stats != null)
+        {
+            healthBar.fillAmount = stats.healthCurrent / stats.healthMax;
+        }
         #endregion
 
         #region direction
@@ -99,17 +107,22 @@ public class Enemy : MonoBehaviour
         #endregion
     }
 
-    public IEnumerator Hitstun()
+    public IEnumerator Hitstun(float stunTime)
     {
         stunned = true;
-        yield return WaitForAnimEnd("hurt");
+        //yield return WaitForAnimEnd("hurt");
+        animator.Play("hurt");
+        yield return new WaitForSeconds(stunTime);
+        yield return new WaitForEndOfFrame();
+        Debug.Log("sodium");
         stunned = false;
+        isAttacking = false;
         animator.Play("walk");
-        yield return new WaitForSeconds(attackCooldown/1.5f);
+        yield return new WaitForSeconds(attackCooldown/2);
         canAttack = true;
     }
 
-    IEnumerator Attack()
+    public IEnumerator Attack()
     {
         canAttack = false;
         isAttacking = true;
@@ -157,7 +170,7 @@ public class Enemy : MonoBehaviour
 
         if (anim == "punch")
         {
-            timeout = .5f;
+            timeout = .7f;
         }
         else
         {

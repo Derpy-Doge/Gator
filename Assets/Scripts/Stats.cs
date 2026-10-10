@@ -8,6 +8,7 @@ public class Stats : MonoBehaviour
     public float healthCurrent;
     [Space(5f)]
 
+    [SerializeField]private float baseAttack;
     public float attackPower;
     [Space(3f)]
     public float defense;
@@ -23,6 +24,7 @@ public class Stats : MonoBehaviour
 
     void Start()
     {
+        attackPower += baseAttack;
         healthCurrent = healthMax;
 
         if (GetComponent<InputReader>() != null)
@@ -33,7 +35,6 @@ public class Stats : MonoBehaviour
         score = FindAnyObjectByType<Gurt>();
     }
 
-    
     void Update()
     {
         if (healthCurrent <= 0 && isPlayer)

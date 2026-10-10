@@ -27,6 +27,11 @@ public class SpawnHitbox : MonoBehaviour
     public bool canPunch = true;
 
     [Tooltip("SAME ORDER AS THE LIST IN INPUT READER I BEG")]public List<Attack> attacks = new List<Attack>();
+
+    [Space(7f)]
+    public AudioManager audioManager;
+    public AudioClip hit;
+
     Stats player;
 
     private bool displayHitbox = false;
@@ -57,26 +62,30 @@ public class SpawnHitbox : MonoBehaviour
         Vector3 offset = new Vector3(0, attack.yOffset);
         RaycastHit2D hitInfo = Physics2D.CircleCast((transform.position + offset), attack.radius, transform.right, attack.range, attackLayer);
 
+        audioManager.PlaySFX(hit);
+
         yield return WaitForAnimEnd(attack);
 
         if(hitInfo.collider != null)
         {
             if (hitInfo.collider.TryGetComponent(out Stats enemy))
             {
-                float calculatedDamage = attack.damage - enemy.defense;
-                enemy.healthCurrent -= calculatedDamage;               
+                enemy.gameObject.GetComponent<Enemy>().StopAllCoroutines();
+
+                float stunTime = enemy.gameObject.GetComponent<Enemy>().hitstunTime;
 
                 if (enemy.gameObject.GetComponent<Enemy>().stunned)
                 {
                     enemy.gameObject.GetComponent<Enemy>().StopAllCoroutines();
+                    enemy.gameObject.GetComponent<Enemy>().stunned = true;
 
-                    if(attack.attackName == "punch")
+                    if (attack.attackName == "punch")
                     {
-                        enemy.gameObject.GetComponent<Enemy>().hitstunTime *= 1f;
+                        stunTime = enemy.gameObject.GetComponent<Enemy>().hitstunTime * 1f;
                     }
                     else
                     {
-                        enemy.gameObject.GetComponent<Enemy>().hitstunTime *= 1.2f;
+                        stunTime = enemy.gameObject.GetComponent<Enemy>().hitstunTime * 1.2f;
 
                         float points = enemy.gameObject.GetComponent<Enemy>().pointsOnDeath;
                         points *= 1.2f;
@@ -84,7 +93,11 @@ public class SpawnHitbox : MonoBehaviour
                         enemy.gameObject.GetComponent<Enemy>().pointsOnDeath = (int)calcedPoints;
                     }
                 }
-                enemy.gameObject.GetComponent<Enemy>().StartCoroutine(enemy.gameObject.GetComponent<Enemy>().Hitstun());
+
+                float calculatedDamage = attack.damage - enemy.defense;
+                enemy.healthCurrent -= calculatedDamage;               
+
+                enemy.gameObject.GetComponent<Enemy>().StartCoroutine(enemy.gameObject.GetComponent<Enemy>().Hitstun(stunTime));
 
                 Vector2 knockbackDir = (enemy.transform.position - transform.position).normalized;
                 float knockbackForce = attack.knockback;

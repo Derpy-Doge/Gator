@@ -284,7 +284,7 @@ public class InputReader : MonoBehaviour
             } 
 
             int fps = Mathf.RoundToInt(_frameCount / _timeAccumulator);
-            fpsText.SetText(fps + " FPS");
+            //fpsText.SetText(fps + " FPS");
 
             _timeAccumulator = 0.0f;
             _frameCount = 0;
